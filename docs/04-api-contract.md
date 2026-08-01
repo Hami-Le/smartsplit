@@ -71,6 +71,29 @@ Base URL: `/api`
 | DELETE | `/settlements/{id}` | Hủy mềm giao dịch |
 | POST | `/balances/simplify` | API thử thuật toán Iteration 0 |
 
+## Sổ chi tiêu cá nhân
+
+| Method | Endpoint | Mô tả |
+|---|---|---|
+| GET | `/personal-finance?month=yyyy-MM` | Tổng chi, ngân sách, thống kê danh mục và giao dịch trong tháng |
+| POST | `/personal-finance/expenses` | Ghi khoản chi cá nhân |
+| PUT | `/personal-finance/expenses/{expenseId}` | Sửa khoản chi thuộc tài khoản hiện tại |
+| DELETE | `/personal-finance/expenses/{expenseId}` | Xóa khoản chi thuộc tài khoản hiện tại |
+| PUT | `/personal-finance/budgets/{yyyy-MM}` | Tạo hoặc cập nhật ngân sách tháng |
+| DELETE | `/personal-finance/budgets/{yyyy-MM}` | Xóa ngân sách tháng |
+
+Client không gửi `userId`; backend luôn lấy chủ dữ liệu từ JWT.
+
+```json
+{
+  "title": "Ăn trưa",
+  "amount": 50000,
+  "expenseDate": "2026-08-02",
+  "categoryId": 1,
+  "note": "Cơm văn phòng"
+}
+```
+
 
 ## Dashboard và báo cáo
 

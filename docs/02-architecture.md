@@ -23,6 +23,7 @@ com.smartsplit
 ├── settlement
 ├── notification
 ├── report
+├── personal
 ├── ocr
 └── common
 ```
@@ -36,6 +37,15 @@ com.smartsplit
 - Entity không được trả trực tiếp ra API; sử dụng request/response DTO.
 - Mọi phép sửa khoản chi, người trả và phần chia phải nằm trong cùng transaction.
 - Authorization kiểm tra cả vai trò và quan hệ thành viên với nhóm.
+- Module `personal` tách dữ liệu cá nhân khỏi nhóm và luôn giới hạn truy vấn theo người dùng trong JWT.
+
+## Luồng sổ chi tiêu cá nhân
+
+1. Client chọn tháng và gọi API tổng hợp cá nhân.
+2. Backend xác định người dùng từ JWT, không nhận `userId` từ client.
+3. Khoản chi được lưu với danh mục dùng chung và không tạo payer/share/công nợ.
+4. Tổng chi và tỷ trọng danh mục được tính trong phạm vi tháng đã chọn.
+5. Ngân sách tháng được so sánh với tổng chi để trả số tiền còn lại hoặc mức vượt.
 
 ## Luồng tạo khoản chi
 

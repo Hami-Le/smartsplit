@@ -13,6 +13,7 @@ import { InvitationAcceptPage } from './pages/InvitationAcceptPage'
 import { LandingPage } from './pages/LandingPage'
 import { LoginPage } from './pages/LoginPage'
 import { AccountPage } from './pages/AccountPage'
+import { PersonalFinancePage } from './pages/PersonalFinancePage'
 import { RegisterPage } from './pages/RegisterPage'
 import { currentPath, navigate } from './router'
 
@@ -66,6 +67,8 @@ export default function App() {
     page = isAuthenticated ? <CreateGroupPage /> : <RedirectToLogin returnTo={path} />
   } else if (path === '/account') {
     page = isAuthenticated ? <AccountPage /> : <RedirectToLogin returnTo={path} />
+  } else if (path === '/personal') {
+    page = isAuthenticated ? <PersonalFinancePage /> : <RedirectToLogin returnTo={path} />
   } else if (dashboardMatch) {
     page = isAuthenticated
       ? <DashboardPage groupId={Number(dashboardMatch[1])} />

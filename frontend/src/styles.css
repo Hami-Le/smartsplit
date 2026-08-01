@@ -775,3 +775,84 @@ button { color: inherit; }
   color: #74511b;
   line-height: 1.5;
 }
+
+/* Personal expense journal and monthly budget */
+.personal-page { max-width: 1120px; margin: 0 auto; }
+.personal-hero {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 28px;
+  margin-bottom: 30px;
+}
+.personal-hero h1 { margin: 12px 0 10px; font-size: clamp(42px, 6vw, 66px); line-height: .98; letter-spacing: -.06em; }
+.personal-hero p { max-width: 690px; margin: 0; color: var(--muted); line-height: 1.6; }
+.personal-month-picker { min-width: 210px; display: grid; gap: 8px; }
+.personal-month-picker span { color: var(--muted); font-size: 13px; font-weight: 750; }
+.personal-month-picker input, .personal-expense-form-panel select {
+  width: 100%;
+  border: 1px solid #cbd4cc;
+  border-radius: 11px;
+  background: white;
+  padding: 12px 13px;
+  color: var(--ink);
+}
+.personal-stat-grid { grid-template-columns: repeat(3, 1fr); }
+.personal-stat-danger { border-color: #e6aaa3; background: #fff7f5; }
+.personal-stat-danger strong { color: var(--danger); }
+.personal-budget-panel { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 32px; align-items: end; margin-bottom: 18px; }
+.personal-budget-copy .panel-heading { margin-bottom: 16px; }
+.personal-budget-progress { height: 13px; overflow: hidden; border-radius: 999px; background: #e8ede7; }
+.personal-budget-progress span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #2e7651, #183428); transition: width 180ms ease; }
+.personal-budget-progress.is-over span { background: linear-gradient(90deg, #d97868, #a33b32); }
+.personal-budget-caption { display: block; margin-top: 9px; color: var(--muted); }
+.personal-budget-form { display: flex; align-items: end; gap: 9px; }
+.personal-budget-form .field { min-width: 220px; margin: 0; }
+.personal-main-grid { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(340px, .85fr); gap: 18px; margin-bottom: 18px; align-items: start; }
+.personal-mini-empty { min-height: 230px; display: grid; place-items: center; align-content: center; gap: 9px; color: var(--muted); text-align: center; }
+.personal-mini-empty span { width: 48px; height: 48px; display: grid; place-items: center; border-radius: 50%; background: #e9efe6; color: #315540; font-size: 24px; }
+.personal-mini-empty p { margin: 0; }
+.personal-expense-form-panel .panel-heading { align-items: flex-start; }
+.personal-expense-form-panel .button-block { margin-top: 22px; }
+.personal-form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.personal-expense-list { display: grid; border-top: 1px solid #e5e9e4; }
+.personal-expense-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 14px;
+  padding: 15px 0;
+  border-bottom: 1px solid #e5e9e4;
+}
+.personal-expense-icon { width: 44px; height: 44px; display: grid; place-items: center; border-radius: 13px; background: #e8efe5; font-size: 19px; }
+.personal-expense-main { min-width: 0; display: grid; gap: 5px; }
+.personal-expense-main small { overflow: hidden; color: var(--muted); text-overflow: ellipsis; white-space: nowrap; }
+.personal-expense-row > b { white-space: nowrap; }
+.personal-expense-actions { display: flex; gap: 10px; }
+
+@media (max-width: 900px) {
+  .personal-stat-grid { grid-template-columns: 1fr 1fr; }
+  .personal-budget-panel, .personal-main-grid { grid-template-columns: 1fr; }
+  .personal-budget-form { justify-content: flex-start; }
+}
+
+@media (max-width: 700px) {
+  .personal-hero { align-items: stretch; flex-direction: column; }
+  .personal-month-picker { min-width: 0; }
+  .personal-stat-grid { grid-template-columns: 1fr; }
+  .personal-budget-form { display: grid; grid-template-columns: 1fr auto; }
+  .personal-budget-form .field { min-width: 0; grid-column: 1 / -1; }
+  .personal-form-row { grid-template-columns: 1fr; }
+  .personal-expense-row { grid-template-columns: auto minmax(0, 1fr) auto; }
+  .personal-expense-row > b { grid-column: 3; grid-row: 1; }
+  .personal-expense-actions { grid-column: 2 / -1; }
+}
+
+@media (max-width: 560px) {
+  .header-actions { gap: 5px; }
+  .header-actions .nav-link { font-size: 13px; }
+  .user-chip > span { display: none; }
+  .personal-expense-row { grid-template-columns: auto minmax(0, 1fr); }
+  .personal-expense-row > b, .personal-expense-actions { grid-column: 2; }
+  .personal-expense-row > b { grid-row: auto; }
+}

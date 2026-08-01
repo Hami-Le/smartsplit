@@ -18,6 +18,9 @@ erDiagram
   EXPENSES ||--o{ ATTACHMENTS : has
   USERS ||--o{ NOTIFICATIONS : receives
   CATEGORIES ||--o{ EXPENSES : classifies
+  USERS ||--o{ PERSONAL_EXPENSES : records
+  CATEGORIES ||--o{ PERSONAL_EXPENSES : classifies
+  USERS ||--o{ MONTHLY_BUDGETS : sets
 
   USERS {
     bigint id PK
@@ -88,6 +91,24 @@ erDiagram
     bigint amount
     varchar status
     datetime settled_at
+  }
+
+  PERSONAL_EXPENSES {
+    bigint id PK
+    bigint user_id FK
+    bigint category_id FK
+    varchar title
+    varchar note
+    bigint amount
+    date expense_date
+    bigint version
+  }
+
+  MONTHLY_BUDGETS {
+    bigint id PK
+    bigint user_id FK
+    date budget_month
+    bigint amount
   }
 ```
 

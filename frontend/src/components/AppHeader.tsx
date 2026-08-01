@@ -17,6 +17,7 @@ export function AppHeader() {
         {isAuthenticated && user ? (
           <>
             <button className="nav-link" type="button" onClick={() => navigate('/groups')}>Nhóm của tôi</button>
+            <button className="nav-link" type="button" onClick={() => navigate('/personal')}>Sổ chi tiêu</button>
             <button className="user-chip" type="button" onClick={() => navigate('/account')} aria-label="Mở tài khoản cá nhân">
               <UserAvatar fullName={user.fullName} avatarUrl={user.avatarUrl} />
               <span>{user.fullName}</span>

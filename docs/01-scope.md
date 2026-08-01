@@ -2,7 +2,7 @@
 
 ## Mục tiêu
 
-Xây dựng ứng dụng web Client–Server giúp một nhóm ghi nhận khoản chi, phân bổ nghĩa vụ, tính số dư công nợ và đề xuất các giao dịch thanh toán rút gọn.
+Xây dựng ứng dụng web Client–Server giúp một nhóm ghi nhận khoản chi, phân bổ nghĩa vụ, tính số dư công nợ và đề xuất các giao dịch thanh toán rút gọn. Người dùng cũng có một sổ chi tiêu riêng để ghi khoản chi cá nhân, xem thống kê danh mục và theo dõi ngân sách từng tháng.
 
 ## MVP bắt buộc
 
@@ -16,6 +16,7 @@ Xây dựng ứng dụng web Client–Server giúp một nhóm ghi nhận khoả
 8. Ghi nhận thanh toán công nợ.
 9. Đề xuất danh sách chuyển khoản rút gọn.
 10. Lịch sử và dashboard cơ bản.
+11. Sổ chi tiêu cá nhân và ngân sách tháng.
 
 ## Nâng cao ưu tiên
 
@@ -48,3 +49,5 @@ Xây dựng ứng dụng web Client–Server giúp một nhóm ghi nhận khoả
 - Không được xóa thành viên đang còn số dư khác 0; chỉ chuyển sang trạng thái rời nhóm.
 - Sửa khoản chi phải cập nhật lại toàn bộ số dư một cách nguyên tử.
 - Một giao dịch thanh toán không được vượt quá nghĩa vụ hiện tại nếu chưa có quyền xác nhận đặc biệt.
+- Khoản chi cá nhân và ngân sách chỉ chủ tài khoản được xem, sửa hoặc xóa.
+- Mỗi tài khoản chỉ có một ngân sách cho mỗi tháng.

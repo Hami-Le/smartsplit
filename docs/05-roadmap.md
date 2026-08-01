@@ -65,6 +65,9 @@
 
 - [ ] VietQR.
 - [x] Export báo cáo — hoàn thành ở Iteration 4.
+- [x] Sổ chi tiêu cá nhân.
+- [x] Thống kê chi cá nhân theo danh mục.
+- [x] Ngân sách cá nhân theo tháng.
 - [ ] Audit log.
 - [ ] Integration test.
 - [ ] Docker production.
