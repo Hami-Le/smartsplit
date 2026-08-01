@@ -1,0 +1,10 @@
+SmartSplit Iteration 5B — Tesseract OCR local
+
+Áp dụng trên Iteration 5:
+1. Dừng backend/frontend.
+2. Sao lưu project.
+3. Chép toàn bộ nội dung thư mục patch vào project và chọn Replace.
+4. Maven → Reload All Maven Projects.
+5. Xóa backend/target hoặc Build → Rebuild Project.
+6. Cài Tesseract 5 + vie/eng theo UPGRADE-ITERATION-5B-TESSERACT.md.
+7. Không xóa database; không có migration Flyway mới.

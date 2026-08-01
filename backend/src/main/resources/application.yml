@@ -1,0 +1,48 @@
+spring:
+  application:
+    name: smartsplit-backend
+  datasource:
+    url: ${DB_URL:jdbc:mysql://localhost:3306/smartsplit?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Ho_Chi_Minh}
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: Asia/Ho_Chi_Minh
+        format_sql: true
+  flyway:
+    enabled: true
+  servlet:
+    multipart:
+      max-file-size: ${OCR_MAX_FILE_SIZE:5MB}
+      max-request-size: ${OCR_MAX_REQUEST_SIZE:6MB}
+
+server:
+  port: ${SERVER_PORT:8080}
+  servlet:
+    context-path: /api
+
+app:
+  jwt:
+    secret: ${JWT_SECRET:replace-this-with-at-least-32-characters-before-production}
+    expiration-minutes: ${JWT_EXPIRATION_MINUTES:60}
+  cors:
+    allowed-origins: ${APP_CORS_ALLOWED_ORIGINS:http://localhost:5173,http://localhost:8080}
+  ocr:
+    provider: ${OCR_PROVIDER:tesseract}
+    enabled: ${OCR_ENABLED:true}
+    storage-directory: ${OCR_STORAGE_DIRECTORY:./uploads/receipts}
+    max-file-bytes: ${OCR_MAX_FILE_BYTES:5242880}
+    tesseract:
+      executable: ${TESSERACT_EXECUTABLE:tesseract}
+      data-path: ${TESSERACT_DATA_PATH:}
+      language: ${TESSERACT_LANGUAGE:vie+eng}
+      page-segmentation-mode: ${TESSERACT_PSM:6}
+      multi-pass: ${TESSERACT_MULTI_PASS:true}
+      timeout-seconds: ${TESSERACT_TIMEOUT_SECONDS:40}
+      preprocess: ${TESSERACT_PREPROCESS:true}
+      target-width: ${TESSERACT_TARGET_WIDTH:1800}
