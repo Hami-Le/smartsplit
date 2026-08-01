@@ -1,14 +1,20 @@
 import { useEffect, useState, type ChangeEvent, type FormEvent } from 'react'
 import {
   changePassword,
+  deleteAvatar,
   getProfile,
   updateProfile,
+  uploadAvatar,
   type UserProfile,
 } from '../api/authApi'
 import { ApiError } from '../api/client'
 import { useAuth } from '../auth/AuthContext'
 import { ErrorMessage } from '../components/ErrorMessage'
 import { LoadingState } from '../components/LoadingState'
+import { UserAvatar } from '../components/UserAvatar'
+
+const MAX_AVATAR_BYTES = 2 * 1024 * 1024
+const ALLOWED_AVATAR_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp'])
 
 function errorMessage(caught: unknown, fallback: string): string {
   if (!(caught instanceof ApiError)) return fallback
@@ -30,6 +36,21 @@ export function AccountPage() {
   const [passwordSuccess, setPasswordSuccess] = useState('')
   const [savingPassword, setSavingPassword] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [avatarFile, setAvatarFile] = useState<File | null>(null)
+  const [avatarPreview, setAvatarPreview] = useState('')
+  const [avatarError, setAvatarError] = useState('')
+  const [avatarSuccess, setAvatarSuccess] = useState('')
+  const [savingAvatar, setSavingAvatar] = useState(false)
+
+  useEffect(() => {
+    if (!avatarFile) {
+      setAvatarPreview('')
+      return
+    }
+    const objectUrl = URL.createObjectURL(avatarFile)
+    setAvatarPreview(objectUrl)
+    return () => URL.revokeObjectURL(objectUrl)
+  }, [avatarFile])
 
   useEffect(() => {
     getProfile()
@@ -52,12 +73,71 @@ export function AccountPage() {
       setProfile(updated)
       setFullName(updated.fullName)
       setPhone(updated.phone ?? '')
-      updateUser({ id: updated.id, fullName: updated.fullName, email: updated.email, role: updated.role })
+      updateUser({ id: updated.id, fullName: updated.fullName, email: updated.email, avatarUrl: updated.avatarUrl, role: updated.role })
       setProfileSuccess('Đã cập nhật thông tin cá nhân.')
     } catch (caught) {
       setProfileError(errorMessage(caught, 'Không thể cập nhật thông tin'))
     } finally {
       setSavingProfile(false)
+    }
+  }
+
+  const handleAvatarChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0] ?? null
+    event.target.value = ''
+    setAvatarError('')
+    setAvatarSuccess('')
+    if (!file) return
+    if (!ALLOWED_AVATAR_TYPES.has(file.type)) {
+      setAvatarError('Chỉ hỗ trợ ảnh JPG, PNG hoặc WebP')
+      return
+    }
+    if (file.size > MAX_AVATAR_BYTES) {
+      setAvatarError('Ảnh đại diện không được vượt quá 2 MB')
+      return
+    }
+    setAvatarFile(file)
+  }
+
+  const applyProfile = (updated: UserProfile) => {
+    setProfile(updated)
+    updateUser({
+      id: updated.id,
+      fullName: updated.fullName,
+      email: updated.email,
+      avatarUrl: updated.avatarUrl,
+      role: updated.role,
+    })
+  }
+
+  const handleAvatarUpload = async () => {
+    if (!avatarFile) return
+    setAvatarError('')
+    setAvatarSuccess('')
+    setSavingAvatar(true)
+    try {
+      applyProfile(await uploadAvatar(avatarFile))
+      setAvatarFile(null)
+      setAvatarSuccess('Đã cập nhật ảnh đại diện.')
+    } catch (caught) {
+      setAvatarError(errorMessage(caught, 'Không thể cập nhật ảnh đại diện'))
+    } finally {
+      setSavingAvatar(false)
+    }
+  }
+
+  const handleAvatarDelete = async () => {
+    setAvatarError('')
+    setAvatarSuccess('')
+    setSavingAvatar(true)
+    try {
+      applyProfile(await deleteAvatar())
+      setAvatarFile(null)
+      setAvatarSuccess('Đã xóa ảnh đại diện.')
+    } catch (caught) {
+      setAvatarError(errorMessage(caught, 'Không thể xóa ảnh đại diện'))
+    } finally {
+      setSavingAvatar(false)
     }
   }
 
@@ -94,9 +174,32 @@ export function AccountPage() {
 
       <div className="account-grid">
         <form className="form-card account-card" onSubmit={handleProfileSubmit}>
-          <span className="account-avatar" aria-hidden="true">
-            {(profile?.fullName || user?.fullName || '?').trim().charAt(0).toUpperCase()}
-          </span>
+          <div className="avatar-editor">
+            <UserAvatar
+              fullName={profile?.fullName || user?.fullName || '?'}
+              avatarUrl={avatarPreview || profile?.avatarUrl || user?.avatarUrl}
+              size="large"
+            />
+            <div className="avatar-editor-actions">
+              <label className="button button-secondary button-small avatar-file-button">
+                {profile?.avatarUrl ? 'Đổi ảnh' : 'Thêm ảnh'}
+                <input type="file" accept="image/jpeg,image/png,image/webp" onChange={handleAvatarChange} />
+              </label>
+              {avatarFile && (
+                <button className="button button-primary button-small" type="button" onClick={handleAvatarUpload} disabled={savingAvatar}>
+                  {savingAvatar ? 'Đang lưu…' : 'Lưu ảnh'}
+                </button>
+              )}
+              {profile?.avatarUrl && !avatarFile && (
+                <button className="text-button danger-text" type="button" onClick={handleAvatarDelete} disabled={savingAvatar}>
+                  Xóa ảnh
+                </button>
+              )}
+              <small>JPG, PNG hoặc WebP · tối đa 2 MB</small>
+            </div>
+          </div>
+          {avatarError && <ErrorMessage message={avatarError} />}
+          {avatarSuccess && <p className="alert alert-success">{avatarSuccess}</p>}
           <div className="form-heading">
             <h2>Thông tin cá nhân</h2>
           </div>

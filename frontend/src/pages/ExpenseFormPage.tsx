@@ -19,6 +19,7 @@ import {
 import { useAuth } from '../auth/AuthContext'
 import { ErrorMessage } from '../components/ErrorMessage'
 import { LoadingState } from '../components/LoadingState'
+import { UserAvatar } from '../components/UserAvatar'
 import { navigate } from '../router'
 
 const moneyFormatter = new Intl.NumberFormat('vi-VN')
@@ -418,7 +419,7 @@ export function ExpenseFormPage({
                 const selected = member.userId in payerAmounts
                 return (
                   <div className={`allocation-row ${selected ? 'selected' : ''}`} key={member.userId}>
-                    <label className="member-check"><input type="checkbox" checked={selected} onChange={() => togglePayer(member.userId)} /><span className="avatar-small">{member.fullName.charAt(0).toUpperCase()}</span><span><strong>{member.fullName}</strong><small>{member.email}</small></span></label>
+                    <label className="member-check"><input type="checkbox" checked={selected} onChange={() => togglePayer(member.userId)} /><UserAvatar fullName={member.fullName} avatarUrl={member.avatarUrl} /><span><strong>{member.fullName}</strong><small>{member.email}</small></span></label>
                     {selected && <label className="inline-money"><input aria-label={`Số tiền ${member.fullName} đã trả`} inputMode="numeric" value={payerAmounts[member.userId] ?? ''} onChange={(event: ChangeEvent<HTMLInputElement>) => setPayerAmounts((current) => ({ ...current, [member.userId]: event.target.value.replace(/[^0-9]/g, '') }))} /><span>đ</span></label>}
                   </div>
                 )
@@ -439,7 +440,7 @@ export function ExpenseFormPage({
                 const preview = previewShares.find((item) => item.userId === member.userId)
                 return (
                   <div className={`allocation-row ${selected ? 'selected' : ''}`} key={member.userId}>
-                    <label className="member-check"><input type="checkbox" checked={selected} onChange={() => toggleParticipant(member.userId)} /><span className="avatar-small">{member.fullName.charAt(0).toUpperCase()}</span><span><strong>{member.fullName}</strong><small>{selected && preview ? `${moneyFormatter.format(preview.amount)} đ` : member.email}</small></span></label>
+                    <label className="member-check"><input type="checkbox" checked={selected} onChange={() => toggleParticipant(member.userId)} /><UserAvatar fullName={member.fullName} avatarUrl={member.avatarUrl} /><span><strong>{member.fullName}</strong><small>{selected && preview ? `${moneyFormatter.format(preview.amount)} đ` : member.email}</small></span></label>
                     {selected && splitType !== 'EQUAL' && (
                       <label className="inline-money compact"><input aria-label={`Phần chia của ${member.fullName}`} inputMode="decimal" value={shareValues[member.userId] ?? ''} onChange={(event: ChangeEvent<HTMLInputElement>) => setShareValues((current) => ({ ...current, [member.userId]: splitType === 'EXACT' ? event.target.value.replace(/[^0-9]/g, '') : event.target.value.replace(/[^0-9.]/g, '') }))} /><span>{splitType === 'PERCENTAGE' ? '%' : 'đ'}</span></label>
                     )}

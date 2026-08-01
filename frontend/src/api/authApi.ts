@@ -4,6 +4,7 @@ export type AuthUser = {
   id: number
   fullName: string
   email: string
+  avatarUrl: string | null
   role: string
 }
 
@@ -69,4 +70,17 @@ export function changePassword(input: ChangePasswordInput): Promise<void> {
     method: 'PUT',
     body: JSON.stringify(input),
   })
+}
+
+export function uploadAvatar(file: File): Promise<UserProfile> {
+  const formData = new FormData()
+  formData.append('file', file)
+  return apiRequest<UserProfile>('/users/me/avatar', {
+    method: 'POST',
+    body: formData,
+  })
+}
+
+export function deleteAvatar(): Promise<UserProfile> {
+  return apiRequest<UserProfile>('/users/me/avatar', { method: 'DELETE' })
 }

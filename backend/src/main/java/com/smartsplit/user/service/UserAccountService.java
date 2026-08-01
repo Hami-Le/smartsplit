@@ -6,6 +6,7 @@ import com.smartsplit.user.dto.UpdateProfileRequest;
 import com.smartsplit.user.dto.UserProfileResponse;
 import com.smartsplit.user.entity.User;
 import com.smartsplit.user.repository.UserRepository;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,15 +16,18 @@ public class UserAccountService {
     private final CurrentUserService currentUserService;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final AvatarStorageService avatarStorageService;
 
     public UserAccountService(
             CurrentUserService currentUserService,
             UserRepository userRepository,
-            PasswordEncoder passwordEncoder
+            PasswordEncoder passwordEncoder,
+            AvatarStorageService avatarStorageService
     ) {
         this.currentUserService = currentUserService;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.avatarStorageService = avatarStorageService;
     }
 
     @Transactional(readOnly = true)
@@ -49,6 +53,32 @@ public class UserAccountService {
         userRepository.save(user);
     }
 
+    @Transactional
+    public UserProfileResponse updateAvatar(MultipartFile file) {
+        User user = currentUserService.getRequiredUser();
+        String oldAvatarUrl = user.getAvatarUrl();
+        String newAvatarUrl = avatarStorageService.store(file);
+        try {
+            user.setAvatarUrl(newAvatarUrl);
+            User saved = userRepository.save(user);
+            avatarStorageService.delete(oldAvatarUrl);
+            return toResponse(saved);
+        } catch (RuntimeException exception) {
+            avatarStorageService.delete(newAvatarUrl);
+            throw exception;
+        }
+    }
+
+    @Transactional
+    public UserProfileResponse removeAvatar() {
+        User user = currentUserService.getRequiredUser();
+        String oldAvatarUrl = user.getAvatarUrl();
+        user.setAvatarUrl(null);
+        User saved = userRepository.save(user);
+        avatarStorageService.delete(oldAvatarUrl);
+        return toResponse(saved);
+    }
+
     private String normalizePhone(String phone) {
         if (phone == null || phone.isBlank()) return null;
         return phone.trim();
@@ -60,6 +90,7 @@ public class UserAccountService {
                 user.getFullName(),
                 user.getEmail(),
                 user.getPhone(),
+                user.getAvatarUrl(),
                 user.getRole().name()
         );
     }

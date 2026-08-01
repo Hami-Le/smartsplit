@@ -6,6 +6,7 @@ import { listReceiptAttachments, type ReceiptAttachment } from '../api/ocrApi'
 import { useAuth } from '../auth/AuthContext'
 import { ErrorMessage } from '../components/ErrorMessage'
 import { LoadingState } from '../components/LoadingState'
+import { UserAvatar } from '../components/UserAvatar'
 import { navigate } from '../router'
 
 const moneyFormatter = new Intl.NumberFormat('vi-VN')
@@ -151,7 +152,7 @@ export function ExpenseDetailPage({
           <div className="money-person-list">
             {expense.payers.map((payer) => (
               <div className="money-person-row" key={payer.userId}>
-                <span className="avatar-small avatar-medium">{payer.fullName.charAt(0).toUpperCase()}</span>
+                <UserAvatar fullName={payer.fullName} avatarUrl={payer.avatarUrl} size="medium" />
                 <div><strong>{payer.fullName}</strong><span>{payer.email}</span></div>
                 <b>{moneyFormatter.format(payer.amount)} đ</b>
               </div>
@@ -164,7 +165,7 @@ export function ExpenseDetailPage({
           <div className="money-person-list">
             {expense.shares.map((share) => (
               <div className="money-person-row" key={share.userId}>
-                <span className="avatar-small avatar-medium">{share.fullName.charAt(0).toUpperCase()}</span>
+                <UserAvatar fullName={share.fullName} avatarUrl={share.avatarUrl} size="medium" />
                 <div><strong>{share.fullName}</strong><span>{share.percentage !== null ? `${share.percentage}%` : share.email}</span></div>
                 <b>{moneyFormatter.format(share.amount)} đ</b>
               </div>

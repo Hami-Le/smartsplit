@@ -20,6 +20,7 @@ import {
 import { useAuth } from '../auth/AuthContext'
 import { ErrorMessage } from '../components/ErrorMessage'
 import { LoadingState } from '../components/LoadingState'
+import { UserAvatar } from '../components/UserAvatar'
 import { navigate } from '../router'
 
 const dateFormatter = new Intl.DateTimeFormat('vi-VN', {
@@ -301,7 +302,7 @@ export function GroupDetailPage({ groupId }: { groupId: number }) {
               const canRemove = canManage && member.role !== 'OWNER' && !isCurrentUser
               return (
                 <div className="member-row" key={member.membershipId}>
-                  <span className="avatar-small avatar-medium">{member.fullName.charAt(0).toUpperCase()}</span>
+                  <UserAvatar fullName={member.fullName} avatarUrl={member.avatarUrl} size="medium" />
                   <div className="member-main"><strong>{member.fullName}{isCurrentUser ? ' (Bạn)' : ''}</strong><span>{member.email}</span></div>
                   {canEditRole ? (
                     <select value={member.role} onChange={(event: ChangeEvent<HTMLSelectElement>) => void handleRoleChange(member, event.target.value as 'ADMIN' | 'MEMBER')} disabled={busy}><option value="MEMBER">Thành viên</option><option value="ADMIN">Quản trị viên</option></select>

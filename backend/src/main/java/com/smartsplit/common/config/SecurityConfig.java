@@ -57,7 +57,7 @@ public class SecurityConfig {
                                 "Bạn không có quyền thực hiện thao tác này"
                         )))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/health", "/auth/register", "/auth/login").permitAll()
+                        .requestMatchers("/health", "/auth/register", "/auth/login", "/users/avatars/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)

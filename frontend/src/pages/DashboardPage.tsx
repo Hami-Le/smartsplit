@@ -7,6 +7,7 @@ import {
 } from '../api/reportApi'
 import { ErrorMessage } from '../components/ErrorMessage'
 import { LoadingState } from '../components/LoadingState'
+import { UserAvatar } from '../components/UserAvatar'
 import { navigate } from '../router'
 
 const moneyFormatter = new Intl.NumberFormat('vi-VN')
@@ -202,7 +203,7 @@ export function DashboardPage({ groupId }: { groupId: number }) {
                 const difference = member.paidAmount - member.shareAmount
                 return (
                   <tr key={member.userId}>
-                    <td><span className="balance-person"><span className="avatar-small">{member.fullName.charAt(0).toUpperCase()}</span><span><b>{member.fullName}</b><small>{member.email}</small></span></span></td>
+                    <td><span className="balance-person"><UserAvatar fullName={member.fullName} avatarUrl={member.avatarUrl} /><span><b>{member.fullName}</b><small>{member.email}</small></span></span></td>
                     <td>{formatMoney(member.paidAmount)}</td>
                     <td>{formatMoney(member.shareAmount)}</td>
                     <td>{member.sharePercentage}%</td>

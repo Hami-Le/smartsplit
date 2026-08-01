@@ -46,3 +46,6 @@ app:
       timeout-seconds: ${TESSERACT_TIMEOUT_SECONDS:40}
       preprocess: ${TESSERACT_PREPROCESS:true}
       target-width: ${TESSERACT_TARGET_WIDTH:1800}
+  avatar:
+    storage-directory: ${AVATAR_STORAGE_DIRECTORY:./uploads/avatars}
+    max-file-bytes: ${AVATAR_MAX_FILE_BYTES:2097152}

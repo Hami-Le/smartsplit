@@ -1,5 +1,6 @@
 import { useAuth } from '../auth/AuthContext'
 import { navigate } from '../router'
+import { UserAvatar } from './UserAvatar'
 
 export function AppHeader() {
   const { user, isAuthenticated, logout } = useAuth()
@@ -17,7 +18,7 @@ export function AppHeader() {
           <>
             <button className="nav-link" type="button" onClick={() => navigate('/groups')}>Nhóm của tôi</button>
             <button className="user-chip" type="button" onClick={() => navigate('/account')} aria-label="Mở tài khoản cá nhân">
-              <span className="avatar-small">{user.fullName.trim().charAt(0).toUpperCase()}</span>
+              <UserAvatar fullName={user.fullName} avatarUrl={user.avatarUrl} />
               <span>{user.fullName}</span>
             </button>
             <button className="button button-ghost button-small" type="button" onClick={handleLogout}>Đăng xuất</button>

@@ -11,6 +11,7 @@ import { ApiError } from '../api/client'
 import { useAuth } from '../auth/AuthContext'
 import { ErrorMessage } from '../components/ErrorMessage'
 import { LoadingState } from '../components/LoadingState'
+import { UserAvatar } from '../components/UserAvatar'
 import { navigate } from '../router'
 
 const moneyFormatter = new Intl.NumberFormat('vi-VN')
@@ -195,7 +196,7 @@ export function BalancePage({ groupId }: { groupId: number }) {
             <tbody>
               {balance.members.map((member) => (
                 <tr key={member.userId}>
-                  <td><span className="balance-person"><span className="avatar-small">{member.fullName.charAt(0).toUpperCase()}</span><span><b>{member.fullName}{member.userId === user?.id ? ' (Bạn)' : ''}</b><small>{member.membershipStatus === 'ACTIVE' ? member.email : `${member.email} · Đã rời nhóm`}</small></span></span></td>
+                  <td><span className="balance-person"><UserAvatar fullName={member.fullName} avatarUrl={member.avatarUrl} /><span><b>{member.fullName}{member.userId === user?.id ? ' (Bạn)' : ''}</b><small>{member.membershipStatus === 'ACTIVE' ? member.email : `${member.email} · Đã rời nhóm`}</small></span></span></td>
                   <td>{formatMoney(member.paidAmount)}</td>
                   <td>{formatMoney(member.shareAmount)}</td>
                   <td>{formatMoney(member.sentAmount)}</td>
