@@ -30,6 +30,15 @@ const dateFormatter = new Intl.DateTimeFormat('vi-VN', {
 const expenseDateFormatter = new Intl.DateTimeFormat('vi-VN', { dateStyle: 'medium' })
 const moneyFormatter = new Intl.NumberFormat('vi-VN')
 
+type ExpenseSort = 'NEWEST' | 'OLDEST' | 'AMOUNT_DESC' | 'AMOUNT_ASC'
+
+const normalizeSearchText = (value: string) => value
+  .normalize('NFD')
+  .replace(/[\u0300-\u036f]/g, '')
+  .replace(/đ/g, 'd')
+  .replace(/Đ/g, 'D')
+  .toLocaleLowerCase('vi-VN')
+
 const roleLabels = {
   OWNER: 'Chủ nhóm',
   ADMIN: 'Quản trị viên',
@@ -51,18 +60,62 @@ export function GroupDetailPage({ groupId }: { groupId: number }) {
   const [busy, setBusy] = useState(false)
   const [expenseSearch, setExpenseSearch] = useState('')
   const [expenseCategory, setExpenseCategory] = useState('')
+  const [expensePayer, setExpensePayer] = useState('')
   const [expenseFrom, setExpenseFrom] = useState('')
   const [expenseTo, setExpenseTo] = useState('')
+  const [expenseSort, setExpenseSort] = useState<ExpenseSort>('NEWEST')
+  const [expenseFiltersOpen, setExpenseFiltersOpen] = useState(false)
 
   const canManage = useMemo(
     () => group?.currentUserRole === 'OWNER' || group?.currentUserRole === 'ADMIN',
     [group],
   )
 
-  const totalExpense = useMemo(
-    () => expenses.reduce((sum, expense) => sum + expense.totalAmount, 0),
-    [expenses],
+  const filteredExpenses = useMemo(() => {
+    const normalizedSearch = normalizeSearchText(expenseSearch.trim())
+    const categoryId = expenseCategory ? Number(expenseCategory) : null
+    const payerId = expensePayer ? Number(expensePayer) : null
+
+    const result = expenses.filter((expense) => {
+      const matchesSearch = !normalizedSearch || normalizeSearchText([
+        expense.title,
+        expense.description ?? '',
+        expense.category?.name ?? '',
+        ...expense.payers.map((payer) => payer.fullName),
+      ].join(' ')).includes(normalizedSearch)
+      const matchesCategory = categoryId === null || expense.category?.id === categoryId
+      const matchesPayer = payerId === null
+        || expense.payers.some((payer) => payer.userId === payerId)
+      const matchesFrom = !expenseFrom || expense.expenseDate >= expenseFrom
+      const matchesTo = !expenseTo || expense.expenseDate <= expenseTo
+      return matchesSearch && matchesCategory && matchesPayer && matchesFrom && matchesTo
+    })
+
+    return result.sort((left, right) => {
+      if (expenseSort === 'OLDEST') {
+        return left.expenseDate.localeCompare(right.expenseDate)
+          || left.createdAt.localeCompare(right.createdAt)
+      }
+      if (expenseSort === 'AMOUNT_DESC') return right.totalAmount - left.totalAmount
+      if (expenseSort === 'AMOUNT_ASC') return left.totalAmount - right.totalAmount
+      return right.expenseDate.localeCompare(left.expenseDate)
+        || right.createdAt.localeCompare(left.createdAt)
+    })
+  }, [expenseCategory, expenseFrom, expensePayer, expenseSearch, expenseSort, expenseTo, expenses])
+
+  const filteredExpenseTotal = useMemo(
+    () => filteredExpenses.reduce((sum, expense) => sum + expense.totalAmount, 0),
+    [filteredExpenses],
   )
+
+  const activeExpenseFilterCount = [
+    expenseCategory,
+    expensePayer,
+    expenseFrom,
+    expenseTo,
+  ].filter(Boolean).length
+
+  const hasExpenseFilters = Boolean(expenseSearch.trim() || activeExpenseFilterCount)
 
   const loadGroup = async () => {
     setError('')
@@ -78,10 +131,10 @@ export function GroupDetailPage({ groupId }: { groupId: number }) {
     }
   }
 
-  const loadExpenseData = async (filters: { from?: string; to?: string; categoryId?: number; search?: string } = {}) => {
+  const loadExpenseData = async () => {
     try {
       const [expenseData, categoryData] = await Promise.all([
-        listExpenses(groupId, filters),
+        listExpenses(groupId),
         listCategories(),
       ])
       setExpenses(expenseData)
@@ -99,35 +152,13 @@ export function GroupDetailPage({ groupId }: { groupId: number }) {
     }
     void load()
   }, [groupId])
-
-
-  const handleExpenseFilter = async (event: FormEvent) => {
-    event.preventDefault()
-    setBusy(true)
-    setError('')
-    try {
-      await loadExpenseData({
-        from: expenseFrom || undefined,
-        to: expenseTo || undefined,
-        categoryId: expenseCategory ? Number(expenseCategory) : undefined,
-        search: expenseSearch.trim() || undefined,
-      })
-    } finally {
-      setBusy(false)
-    }
-  }
-
-  const clearExpenseFilters = async () => {
+  const clearExpenseFilters = () => {
     setExpenseSearch('')
     setExpenseCategory('')
+    setExpensePayer('')
     setExpenseFrom('')
     setExpenseTo('')
-    setBusy(true)
-    try {
-      await loadExpenseData()
-    } finally {
-      setBusy(false)
-    }
+    setExpenseSort('NEWEST')
   }
 
   const handleUpdate = async (event: FormEvent) => {
@@ -258,29 +289,98 @@ export function GroupDetailPage({ groupId }: { groupId: number }) {
       <section className="panel expense-panel">
         <div className="panel-heading expense-panel-heading">
           <div><h2>Khoản chi</h2></div>
-          <div className="expense-stat"><span>{expenses.length} khoản</span><strong>{moneyFormatter.format(totalExpense)} đ</strong></div>
+          <div className="expense-stat">
+            <span>{filteredExpenses.length}{hasExpenseFilters ? ` / ${expenses.length}` : ''} khoản</span>
+            <strong>{moneyFormatter.format(filteredExpenseTotal)} đ</strong>
+          </div>
         </div>
-        <form className="expense-toolbar expense-toolbar-advanced" onSubmit={handleExpenseFilter}>
-          <input value={expenseSearch} onChange={(event: ChangeEvent<HTMLInputElement>) => setExpenseSearch(event.target.value)} placeholder="Tìm tên hoặc ghi chú…" />
-          <select value={expenseCategory} onChange={(event: ChangeEvent<HTMLSelectElement>) => setExpenseCategory(event.target.value)}>
-            <option value="">Tất cả danh mục</option>
-            {categories.map((category) => <option key={category.id} value={category.id}>{category.name}</option>)}
+        <div className="expense-search-row">
+          <div className="expense-search-box">
+            <span aria-hidden="true">⌕</span>
+            <input
+              aria-label="Tìm khoản chi"
+              value={expenseSearch}
+              onChange={(event: ChangeEvent<HTMLInputElement>) => setExpenseSearch(event.target.value)}
+              placeholder="Tìm khoản chi…"
+            />
+          </div>
+          <button
+            className={`button button-secondary button-small${expenseFiltersOpen ? ' is-active' : ''}`}
+            type="button"
+            aria-expanded={expenseFiltersOpen}
+            onClick={() => setExpenseFiltersOpen((value) => !value)}
+          >
+            Bộ lọc{activeExpenseFilterCount > 0 ? ` (${activeExpenseFilterCount})` : ''}
+          </button>
+          <select
+            className="expense-sort-select"
+            aria-label="Sắp xếp khoản chi"
+            value={expenseSort}
+            onChange={(event: ChangeEvent<HTMLSelectElement>) => setExpenseSort(event.target.value as ExpenseSort)}
+          >
+            <option value="NEWEST">Mới nhất</option>
+            <option value="OLDEST">Cũ nhất</option>
+            <option value="AMOUNT_DESC">Tiền cao nhất</option>
+            <option value="AMOUNT_ASC">Tiền thấp nhất</option>
           </select>
-          <input type="date" aria-label="Từ ngày" value={expenseFrom} onChange={(event: ChangeEvent<HTMLInputElement>) => setExpenseFrom(event.target.value)} />
-          <input type="date" aria-label="Đến ngày" value={expenseTo} onChange={(event: ChangeEvent<HTMLInputElement>) => setExpenseTo(event.target.value)} />
-          <button className="button button-secondary button-small" type="submit" disabled={busy}>Lọc</button>
-          <button className="button button-ghost button-small" type="button" disabled={busy} onClick={() => void clearExpenseFilters()}>Xóa lọc</button>
           <button className="button button-primary button-small" type="button" onClick={() => navigate(`/groups/${groupId}/expenses/new`)}>Thêm khoản chi</button>
-        </form>
+        </div>
+
+        {expenseFiltersOpen && (
+          <div className="expense-filter-panel">
+            <label className="field">
+              <span>Từ ngày</span>
+              <input type="date" max={expenseTo || undefined} value={expenseFrom} onChange={(event: ChangeEvent<HTMLInputElement>) => setExpenseFrom(event.target.value)} />
+            </label>
+            <label className="field">
+              <span>Đến ngày</span>
+              <input type="date" min={expenseFrom || undefined} value={expenseTo} onChange={(event: ChangeEvent<HTMLInputElement>) => setExpenseTo(event.target.value)} />
+            </label>
+            <label className="field">
+              <span>Danh mục</span>
+              <select value={expenseCategory} onChange={(event: ChangeEvent<HTMLSelectElement>) => setExpenseCategory(event.target.value)}>
+                <option value="">Tất cả danh mục</option>
+                {categories.map((category) => <option key={category.id} value={category.id}>{category.name}</option>)}
+              </select>
+            </label>
+            <label className="field">
+              <span>Người thanh toán</span>
+              <select value={expensePayer} onChange={(event: ChangeEvent<HTMLSelectElement>) => setExpensePayer(event.target.value)}>
+                <option value="">Tất cả thành viên</option>
+                {group.members.map((member) => <option key={member.userId} value={member.userId}>{member.fullName}</option>)}
+              </select>
+            </label>
+            <button className="button button-ghost button-small" type="button" disabled={!hasExpenseFilters && expenseSort === 'NEWEST'} onClick={clearExpenseFilters}>Xóa tất cả</button>
+          </div>
+        )}
+
+        {hasExpenseFilters && (
+          <div className="expense-filter-chips" aria-label="Bộ lọc đang áp dụng">
+            {expenseSearch.trim() && <button type="button" onClick={() => setExpenseSearch('')}>“{expenseSearch.trim()}” <span>×</span></button>}
+            {expenseFrom && <button type="button" onClick={() => setExpenseFrom('')}>Từ {expenseDateFormatter.format(new Date(`${expenseFrom}T00:00:00`))} <span>×</span></button>}
+            {expenseTo && <button type="button" onClick={() => setExpenseTo('')}>Đến {expenseDateFormatter.format(new Date(`${expenseTo}T00:00:00`))} <span>×</span></button>}
+            {expenseCategory && <button type="button" onClick={() => setExpenseCategory('')}>{categories.find((category) => category.id === Number(expenseCategory))?.name} <span>×</span></button>}
+            {expensePayer && <button type="button" onClick={() => setExpensePayer('')}>{group.members.find((member) => member.userId === Number(expensePayer))?.fullName} <span>×</span></button>}
+            <button className="expense-clear-filters" type="button" onClick={clearExpenseFilters}>Xóa tất cả</button>
+          </div>
+        )}
+
         {expenses.length === 0 ? (
           <div className="expense-empty">
             <span>₫</span>
-            <h3>Chưa có khoản chi phù hợp</h3>
+            <h3>Chưa có khoản chi</h3>
             <p>Thêm khoản chi đầu tiên để bắt đầu tính phần tiền của từng người.</p>
+          </div>
+        ) : filteredExpenses.length === 0 ? (
+          <div className="expense-empty">
+            <span>⌕</span>
+            <h3>Không tìm thấy khoản chi phù hợp</h3>
+            <p>Hãy thử thay đổi từ khóa hoặc bộ lọc.</p>
+            <button className="button button-secondary button-small" type="button" onClick={clearExpenseFilters}>Xóa bộ lọc</button>
           </div>
         ) : (
           <div className="expense-list">
-            {expenses.map((expense) => (
+            {filteredExpenses.map((expense) => (
               <button className="expense-row" type="button" key={expense.id} onClick={() => navigate(`/groups/${groupId}/expenses/${expense.id}`)}>
                 <span className="expense-date-box"><b>{new Date(`${expense.expenseDate}T00:00:00`).getDate()}</b><small>{new Date(`${expense.expenseDate}T00:00:00`).toLocaleDateString('vi-VN', { month: 'short' })}</small></span>
                 <span className="expense-row-main"><strong>{expense.title}</strong><small>{expense.category?.name ?? 'Chưa phân loại'} · {expenseDateFormatter.format(new Date(`${expense.expenseDate}T00:00:00`))} · {expense.payers.map((payer) => payer.fullName).join(', ')} đã trả</small></span>

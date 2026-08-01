@@ -323,6 +323,87 @@ button { color: inherit; }
 .expense-stat { display: grid; gap: 3px; text-align: right; }
 .expense-stat span { color: var(--muted); font-size: 13px; }
 .expense-stat strong { font-size: 22px; }
+.expense-search-row {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) auto minmax(150px, auto) auto;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 14px;
+}
+.expense-search-box {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+  border: 1px solid #cbd4cc;
+  border-radius: 11px;
+  background: #fbfcfa;
+  padding-left: 13px;
+  color: var(--muted);
+}
+.expense-search-box:focus-within {
+  border-color: #4e7960;
+  box-shadow: 0 0 0 3px rgba(67, 112, 84, .12);
+}
+.expense-search-box input {
+  min-width: 0;
+  width: 100%;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  padding: 12px 13px 12px 0;
+  color: var(--ink);
+}
+.expense-sort-select,
+.expense-filter-panel input,
+.expense-filter-panel select {
+  min-width: 0;
+  border: 1px solid #cbd4cc;
+  border-radius: 11px;
+  background: #fbfcfa;
+  padding: 11px 13px;
+  color: var(--ink);
+  outline: none;
+}
+.expense-sort-select:focus,
+.expense-filter-panel input:focus,
+.expense-filter-panel select:focus {
+  border-color: #4e7960;
+  box-shadow: 0 0 0 3px rgba(67, 112, 84, .12);
+}
+.expense-search-row .button.is-active { border-color: #416d52; background: #edf4ec; }
+.expense-filter-panel {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(140px, 1fr)) auto;
+  gap: 12px;
+  align-items: end;
+  margin-bottom: 14px;
+  padding: 16px;
+  border: 1px solid #dfe6df;
+  border-radius: 14px;
+  background: #f8faf7;
+}
+.expense-filter-panel .field { min-width: 0; margin: 0; }
+.expense-filter-panel .field span { font-size: 13px; }
+.expense-filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.expense-filter-chips button {
+  border: 1px solid #d8e2d8;
+  border-radius: 999px;
+  background: #edf4ec;
+  padding: 7px 10px;
+  color: #294b38;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+.expense-filter-chips button:hover { border-color: #8fa893; }
+.expense-filter-chips button span { margin-left: 4px; font-weight: 800; }
+.expense-filter-chips .expense-clear-filters { border-color: transparent; background: transparent; color: var(--muted); }
 .expense-toolbar {
   display: grid;
   grid-template-columns: minmax(180px, 1fr) 210px auto;
@@ -366,6 +447,7 @@ button { color: inherit; }
 .expense-empty > span { width: 52px; height: 52px; display: grid; place-items: center; border-radius: 50%; background: #e3ece1; color: #294b38; font-size: 23px; font-weight: 900; }
 .expense-empty h3 { color: var(--ink); margin: 14px 0 4px; }
 .expense-empty p { margin: 0; }
+.expense-empty .button { margin-top: 16px; }
 
 .expense-layout { display: grid; grid-template-columns: minmax(0, 1fr) 330px; gap: 18px; align-items: start; }
 .expense-form-main { display: grid; gap: 18px; }
@@ -605,6 +687,10 @@ button { color: inherit; }
 .dashboard-recent-row > b { white-space: nowrap; }
 
 @media (max-width: 1050px) {
+  .expense-search-row { grid-template-columns: minmax(220px, 1fr) auto auto; }
+  .expense-search-row > .button-primary { grid-column: 1 / -1; justify-self: end; }
+  .expense-filter-panel { grid-template-columns: 1fr 1fr; }
+  .expense-filter-panel > .button { justify-self: start; }
   .expense-toolbar-advanced { grid-template-columns: 1fr 1fr 1fr 1fr; }
   .expense-toolbar-advanced .button { grid-column: auto; }
   .dashboard-stat-grid { grid-template-columns: repeat(2, 1fr); }
@@ -612,6 +698,11 @@ button { color: inherit; }
 }
 
 @media (max-width: 760px) {
+  .expense-search-row { grid-template-columns: 1fr 1fr; }
+  .expense-search-box { grid-column: 1 / -1; }
+  .expense-search-row > .button-primary { grid-column: 1 / -1; justify-self: stretch; }
+  .expense-filter-panel { grid-template-columns: 1fr; }
+  .expense-filter-panel > .button { width: 100%; }
   .dashboard-hero { align-items: flex-start; flex-direction: column; }
   .dashboard-export-actions { width: 100%; flex-direction: column; }
   .dashboard-filter { grid-template-columns: 1fr; }
