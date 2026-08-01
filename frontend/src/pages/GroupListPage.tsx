@@ -31,7 +31,6 @@ export function GroupListPage() {
         <div>
           <p className="eyebrow">NHÓM CỦA TÔI</p>
           <h1 className="page-title">Quản lý mọi nhóm chi phí.</h1>
-          <p className="page-subtitle">Bạn chỉ nhìn thấy những nhóm mình đang là thành viên.</p>
         </div>
         <button className="button button-primary" type="button" onClick={() => navigate('/groups/new')}>+ Tạo nhóm</button>
       </div>
@@ -54,7 +53,7 @@ export function GroupListPage() {
                 <span className="role-badge">{roleLabel(group.currentUserRole)}</span>
               </div>
               <h2>{group.name}</h2>
-              <p>{group.description || 'Chưa có mô tả cho nhóm này.'}</p>
+              {group.description?.trim() && <p>{group.description}</p>}
               <div className="group-card-meta">
                 <span>{group.memberCount} thành viên</span>
                 <span>{group.defaultCurrency}</span>

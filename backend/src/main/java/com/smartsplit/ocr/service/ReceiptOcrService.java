@@ -230,7 +230,7 @@ public class ReceiptOcrService {
             return prefix + ". Chưa xác định chắc chắn tổng tiền; hãy nhập thủ công và xem văn bản OCR.";
         }
         if (parsed.confidence() == null || parsed.confidence().compareTo(new BigDecimal("0.7500")) < 0) {
-            return prefix + ". Kết quả có độ tin cậy thấp; cần kiểm tra kỹ tên cửa hàng và số tiền trước khi áp dụng.";
+            return prefix + ". Kết quả có độ tin cậy thấp; cần kiểm tra kỹ số tiền và ngày trước khi áp dụng.";
         }
         return prefix + ". Hãy kiểm tra lại dữ liệu trước khi lưu khoản chi.";
     }

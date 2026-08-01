@@ -226,7 +226,7 @@ export function GroupDetailPage({ groupId }: { groupId: number }) {
         <div className="group-detail-title">
           <span className="role-badge">{roleLabels[group.currentUserRole]}</span>
           <h1>{group.name}</h1>
-          <p>{group.description || 'Chưa có mô tả cho nhóm này.'}</p>
+          {group.description?.trim() && <p>{group.description}</p>}
           <div className="group-facts">
             <span>{group.members.length} thành viên</span>
             <span>{group.defaultCurrency}</span>
@@ -256,7 +256,7 @@ export function GroupDetailPage({ groupId }: { groupId: number }) {
 
       <section className="panel expense-panel">
         <div className="panel-heading expense-panel-heading">
-          <div><h2>Khoản chi</h2><p>Theo dõi những khoản tiền đã phát sinh trong nhóm.</p></div>
+          <div><h2>Khoản chi</h2></div>
           <div className="expense-stat"><span>{expenses.length} khoản</span><strong>{moneyFormatter.format(totalExpense)} đ</strong></div>
         </div>
         <form className="expense-toolbar expense-toolbar-advanced" onSubmit={handleExpenseFilter}>
@@ -293,7 +293,7 @@ export function GroupDetailPage({ groupId }: { groupId: number }) {
 
       <div className="detail-grid">
         <section className="panel">
-          <div className="panel-heading"><div><h2>Thành viên</h2><p>Vai trò quyết định quyền quản lý trong nhóm.</p></div></div>
+          <div className="panel-heading"><div><h2>Thành viên</h2></div></div>
           <div className="member-list">
             {group.members.map((member) => {
               const isCurrentUser = member.userId === user?.id

@@ -43,12 +43,6 @@ function scanStatusLabel(scan: ReceiptScan): string {
   return 'Cần nhập thủ công'
 }
 
-function ocrProviderLabel(provider: string): string {
-  if (provider === 'TESSERACT_LOCAL') return 'Tesseract local'
-  if (provider === 'MANUAL_TEXT') return 'Văn bản thủ công'
-  return provider.replaceAll('_', ' ')
-}
-
 export function ExpenseFormPage({
   groupId,
   expenseId,
@@ -220,7 +214,6 @@ export function ExpenseFormPage({
 
   const applyReceiptSuggestion = () => {
     if (!receiptScan) return
-    if (receiptScan.merchant) setTitle(receiptScan.merchant)
     if (receiptScan.totalAmount) setTotalAmount(String(receiptScan.totalAmount))
     if (receiptScan.expenseDate) setExpenseDate(receiptScan.expenseDate)
     if (receiptScan.categoryId) setCategoryId(String(receiptScan.categoryId))
@@ -327,9 +320,7 @@ export function ExpenseFormPage({
       <button className="back-button" type="button" onClick={() => navigate(`/groups/${groupId}`)}>← {group.name}</button>
       <div className="page-heading-row">
         <div>
-          <span className="eyebrow">KHOẢN CHI NHÓM</span>
           <h1>{isEditing ? 'Chỉnh sửa khoản chi' : 'Thêm khoản chi'}</h1>
-          <p>Quét hóa đơn để tự điền dữ liệu, sau đó kiểm tra và chia tiền cho thành viên.</p>
         </div>
       </div>
       {error && <ErrorMessage message={error} />}
@@ -338,7 +329,7 @@ export function ExpenseFormPage({
         <div className="expense-form-main">
           <section className="panel receipt-ocr-panel">
             <div className="panel-heading">
-              <div><h2>OCR hóa đơn</h2><p>Tesseract xử lý ảnh ngay trên máy và đính kèm ảnh vào khoản chi.</p></div>
+              <div><h2>Quét hóa đơn</h2></div>
               {receiptScan && <span className={`ocr-status ocr-status-${receiptScan.status.toLowerCase()}`}>{scanStatusLabel(receiptScan)}</span>}
             </div>
 
@@ -361,17 +352,17 @@ export function ExpenseFormPage({
             </div>
 
             {ocrError && <ErrorMessage message={ocrError} />}
-            {receiptScan?.message && <p className="ocr-message">{receiptScan.message}</p>}
+            {receiptScan?.message && receiptScan.status !== 'COMPLETED' && (
+              <p className="ocr-message">{receiptScan.message}</p>
+            )}
 
             {receiptScan && (
               <div className="ocr-result-card">
                 <div className="ocr-result-grid">
-                  <div><span>Cửa hàng</span><strong>{receiptScan.merchant || 'Chưa nhận dạng'}</strong></div>
                   <div><span>Tổng tiền</span><strong>{receiptScan.totalAmount ? `${moneyFormatter.format(receiptScan.totalAmount)} đ` : 'Chưa nhận dạng'}</strong></div>
                   <div><span>Ngày</span><strong>{receiptScan.expenseDate || 'Chưa nhận dạng'}</strong></div>
                   <div><span>Danh mục</span><strong>{receiptScan.categoryName || 'Chưa phân loại'}</strong></div>
                   <div><span>Độ tin cậy</span><strong>{receiptScan.confidence == null ? '—' : `${Math.round(receiptScan.confidence * 100)}%`}</strong></div>
-                  <div><span>Nguồn</span><strong>{ocrProviderLabel(receiptScan.provider)}</strong></div>
                 </div>
                 {receiptScan.confidence != null && receiptScan.confidence < 0.75 && (
                   <p className="ocr-confidence-warning">Không tự động tin tuyệt đối kết quả này. Hãy đối chiếu ảnh và văn bản OCR trước khi áp dụng.</p>
@@ -388,7 +379,7 @@ export function ExpenseFormPage({
             )}
 
             <details className="ocr-manual-box">
-              <summary>Ảnh khó đọc? Dán văn bản để kiểm thử bộ phân tích</summary>
+              <summary>Nhập văn bản OCR</summary>
               <label className="field">
                 <span>Văn bản trên hóa đơn</span>
                 <textarea
@@ -410,8 +401,8 @@ export function ExpenseFormPage({
           </section>
 
           <section className="panel">
-            <div className="panel-heading"><div><h2>Thông tin chung</h2><p>Mô tả khoản tiền đã phát sinh.</p></div></div>
-            <label className="field"><span>Tên khoản chi</span><input value={title} onChange={(event: ChangeEvent<HTMLInputElement>) => setTitle(event.target.value)} placeholder="Ví dụ: Quán BBQ" maxLength={180} required /></label>
+            <div className="panel-heading"><div><h2>Thông tin chung</h2></div></div>
+            <label className="field"><span>Tên khoản chi</span><input value={title} onChange={(event: ChangeEvent<HTMLInputElement>) => setTitle(event.target.value)} placeholder="Ví dụ: Ăn tối" maxLength={180} required /></label>
             <div className="form-grid-two">
               <label className="field"><span>Tổng tiền (đ)</span><input inputMode="numeric" value={totalAmount} onChange={(event: ChangeEvent<HTMLInputElement>) => setTotalAmount(event.target.value.replace(/[^0-9]/g, ''))} placeholder="2300000" required /></label>
               <label className="field"><span>Ngày chi</span><input type="date" value={expenseDate} onChange={(event: ChangeEvent<HTMLInputElement>) => setExpenseDate(event.target.value)} required /></label>
