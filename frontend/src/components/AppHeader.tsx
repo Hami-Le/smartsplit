@@ -16,10 +16,10 @@ export function AppHeader() {
         {isAuthenticated && user ? (
           <>
             <button className="nav-link" type="button" onClick={() => navigate('/groups')}>Nhóm của tôi</button>
-            <span className="user-chip">
+            <button className="user-chip" type="button" onClick={() => navigate('/account')} aria-label="Mở tài khoản cá nhân">
               <span className="avatar-small">{user.fullName.trim().charAt(0).toUpperCase()}</span>
               <span>{user.fullName}</span>
-            </span>
+            </button>
             <button className="button button-ghost button-small" type="button" onClick={handleLogout}>Đăng xuất</button>
           </>
         ) : (

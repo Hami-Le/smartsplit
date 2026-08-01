@@ -12,6 +12,7 @@ import { GroupListPage } from './pages/GroupListPage'
 import { InvitationAcceptPage } from './pages/InvitationAcceptPage'
 import { LandingPage } from './pages/LandingPage'
 import { LoginPage } from './pages/LoginPage'
+import { AccountPage } from './pages/AccountPage'
 import { RegisterPage } from './pages/RegisterPage'
 import { currentPath, navigate } from './router'
 
@@ -63,6 +64,8 @@ export default function App() {
     page = isAuthenticated ? <GroupListPage /> : <RedirectToLogin returnTo={path} />
   } else if (path === '/groups/new') {
     page = isAuthenticated ? <CreateGroupPage /> : <RedirectToLogin returnTo={path} />
+  } else if (path === '/account') {
+    page = isAuthenticated ? <AccountPage /> : <RedirectToLogin returnTo={path} />
   } else if (dashboardMatch) {
     page = isAuthenticated
       ? <DashboardPage groupId={Number(dashboardMatch[1])} />

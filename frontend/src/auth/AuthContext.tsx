@@ -23,6 +23,7 @@ type AuthContextValue = {
   isAuthenticated: boolean
   login: (input: LoginInput) => Promise<void>
   register: (input: RegisterInput) => Promise<void>
+  updateUser: (user: AuthUser) => void
   logout: () => void
 }
 
@@ -66,6 +67,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isAuthenticated: Boolean(auth?.accessToken),
       login: async (input) => persist(await loginRequest(input)),
       register: async (input) => persist(await registerRequest(input)),
+      updateUser: (user) => {
+        if (!auth) return
+        persist({ ...auth, user })
+      },
       logout: () => {
         localStorage.removeItem(AUTH_STORAGE_KEY)
         setAuth(null)
